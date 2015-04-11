@@ -1,0 +1,242 @@
+/* style.scss */
+
+
+$white: #ffffff;
+$gray1: #f5f5f5;
+$gray2: #e2e2e2;
+$gray3: #c7c7c7;
+$gray4: #a7a7a7;
+$gray5: #868686;
+$gray6: #666666;
+$gray7: #4a4a4a;
+$gray8: #323232;
+$gray9: #202020;
+$black: #000000;
+
+$blue: #12a2d9;
+$blue-dark: #0c7197;
+
+$bp-mobile:680px;
+$bp-narrow:768px;
+$bp-regular:1024px;
+$bp-wide:1280px;
+$bp-xwide:1440px;
+
+
+* {
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	-ms-box-sizing:border-box;
+}
+
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content; 
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  } 
+}
+
+
+@mixin css-animate($name, $time, $iteration, $delay, $ease) {
+	animation: $name linear $time $iteration;
+	-moz-animation: $name linear $time  $iteration;
+	-webkit-animation: $name linear $time  $iteration;
+	animation-delay: $delay;
+	-moz-animation-delay: $delay; /* Firefox */
+	-webkit-animation-delay: $delay; /* Safari and Chrome */
+	-o-animation-delay: $delay; /* Opera */
+	animation-timing-function:$ease;
+	-moz-animation-timing-function:$ease; /* Firefox */
+	-webkit-animation-timing-function:$ease; /* Safari and Chrome */
+	-o-animation-timing-function:$ease; /* Opera */
+}
+
+@mixin translate3d($x, $y, $z) {
+	-webkit-transform: translate3d($x, $y, $z); 
+	-moz-transform: translate3d($x, $y, $z); 
+	-ms-transform: translate3d($x, $y, $z); 
+	transform: translate3d($x, $y, $z); 
+}
+
+
+html, body {
+	width:100%;
+	height:100%;
+	font-size:12px;
+	font-family: 'Roboto', sans-serif;
+	line-height:1.2;
+	min-width:320px;
+	-webkit-text-size-adjust: none;
+    -ms-text-size-adjust: none;
+	-moz-text-size-adjust: none;
+    text-size-adjust: none;
+	background: $blue;
+	color: $white;
+	font-size: 16px;
+}
+
+
+.header {
+	text-align:center;
+	padding: 32px 16px;
+	
+	h1 {
+		font-size:80px;
+		margin: 16px 0 8px;
+	}
+}
+
+
+@include keyframes(showUser) {
+	0% {
+		transform: scale(0);
+	}
+	50% {
+		transform: scale(1.1);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+.user {
+	display:none;
+	
+	img {
+		display: inline-block;
+		height: 80px;
+		width: 80px;
+		border: 3px solid $white;
+		border-radius:50%;
+		
+		
+	}
+	
+	.show-user & {
+		display: block;
+		
+		img {
+			transform: scale(1);
+			@include css-animate(showUser, .45s, 1, 0, ease-out);
+		}
+	}
+}
+
+.date {
+	font-size: 32px;
+	font-weight:bold;
+	.date-curr {
+		display: inline-block;
+		margin: 0 8px
+	}
+	.date-prev, .date-next {	
+		display: inline-block;
+		vertical-align: -8px;
+		border-radius: 50%;
+		cursor:pointer;
+		
+		box-shadow: 0 0 0 rgba($black, .3);
+		
+		&:hover {
+			transition: all .25s ease-out;
+			background: $white;
+			box-shadow: -4px 4px 0 rgba($black, .3);
+			.icon {
+				fill: $blue-dark;
+			}
+		}		
+	}
+}
+
+.pie-chart {
+	text-align:center;
+	padding: 32px 16px;
+}
+
+@include keyframes(castShadow) {
+	0% {
+		box-shadow: 0 0 0 rgba($black, .3);
+		
+	}
+	100% {
+		box-shadow: -24px 24px 0 rgba($black, .3);
+	}
+}
+.pie-wrapper {
+	display: inline-block;
+	height: 320px;
+	width: 320px;
+	background: $white;
+	border-radius: 50%;
+	box-shadow: -24px 24px 0 rgba($black, .3);
+	position:relative;
+	padding: 32px;
+	@include css-animate(castShadow, .65s, 1, 0, ease-out);
+}
+
+.pie {
+	border: 3px solid $gray3;
+	width: 100%;
+	height: 100%;
+	border-radius: 100%;
+}
+
+.icon {
+	width: 40px;
+	height: 40px;
+	fill: $white;
+	display: block;
+}
+
+
+
+.foursquare-connect {
+	margin: 16px 0 36px 0;
+	text-align:center;
+	img {
+		height: 100%;
+		vertical-align: -16px;
+	}
+	
+	a {
+		color: $blue;
+		height: 44px;
+		line-height: 44px;
+		border-radius: 4px;
+		overflow:hidden;
+		text-decoration: none;
+		display: inline-block;
+		background: $white;
+		box-shadow: -3px 3px 0 rgba($black, .3);
+		transition: scale .25s;
+		
+		&:active {
+			background: $gray2;
+			color: $gray4;
+			box-shadow: none;
+			box-shadow: -1px 1px 0 rgba($black, .3);
+			transform: scale(.9);
+			
+			img {
+				opacity: .4;
+				
+			}
+		}	
+	}
+	span {
+		margin: 0 20px 0 4px;
+	}
+	
+	.show-user & {
+		display: none;
+	}
+}
