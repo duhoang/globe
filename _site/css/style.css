@@ -104,7 +104,8 @@ html, body {
   text-size-adjust: none;
   background: #0b61a3;
   color: #ffffff;
-  font-size: 16px; }
+  font-size: 16px;
+  margin: 0; }
 
 .header {
   text-align: center;
@@ -204,8 +205,8 @@ html, body {
   display: block; }
 
 .content {
-  margin: 16px;
-  position: relative; }
+  position: fixed;
+  bottom: 0; }
 
 @-webkit-keyframes loadingManager {
   0% {

@@ -169,6 +169,7 @@ html, body {
 	background: $blue;
 	color: $white;
 	font-size: 16px;
+	margin: 0;
 }
 
 
@@ -268,8 +269,8 @@ html, body {
 
 
 .content {
-	margin: 16px;
-	position: relative;
+	position: fixed;
+	bottom: 0
 }
 
 
