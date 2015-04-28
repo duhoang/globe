@@ -9,6 +9,7 @@ title: Where I've Been
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="js/three.min.js"></script>
     <script src="js/underscore-min.js" charset="utf-8"></script>
+    <script src="js/Tween.js" charset="utf-8"></script>
     <link type="text/css" href="css/style.css" rel="stylesheet"/>
 
 </head>
@@ -93,16 +94,18 @@ title: Where I've Been
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(20, window.innerWidth/640, 0.1, 2000 );
         var renderer = new THREE.WebGLRenderer({alpha: true});
+        var container = document.getElementById("container");
 
         renderer.setSize( window.innerWidth, 640);
 
-        document.getElementById("container").appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement);
 
         renderer.domElement.style.zIndex = 2;
         renderer.domElement.style.position = "relative";
 
+        camera.position.x = 120;
         camera.position.y = 100;
-        camera.position.z = 500;
+        camera.position.z = 400;
 
         var light = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
 
@@ -120,7 +123,9 @@ title: Where I've Been
         
         pivot.rotation.y = 84.8;
 
-        var geometry = new THREE.SphereGeometry( 100, 64, 64);
+        var globeRadius = 100;
+
+        var geometry = new THREE.SphereGeometry( globeRadius, 64, 64);
         var material = new THREE.MeshPhongMaterial({map : THREE.ImageUtils.loadTexture('img/earthmap1k.jpg')});
 
         var globe = new THREE.Mesh( geometry, material );
@@ -132,65 +137,103 @@ title: Where I've Been
 
         //////DATA OBJECTS//////
 
-        for ( var i=0; i < sortedData.length - 1; i++) {
-            var point = new THREE.BoxGeometry(1, 1, sortedData[i].count*2);
+        var labels = [];
+        var labelPositions = [];
+        var geos = [];
+
+
+        _.map(sortedData, function(d){
+
+            var point = new THREE.BoxGeometry(2, 2, 1);
+            point.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, -.5 ) );
+
             var pointMat = new THREE.MeshPhongMaterial({color: 0xffff00});
             var pointObj = new THREE.Mesh(point, pointMat);
+            pointObj.scale.z = d.count;
 
-            var phi = (90 - sortedData[i].lat) * Math.PI / 180;
-            var theta = (180 - sortedData[i].lng) * Math.PI / 180;
+            var phi = (90 - d.lat) * Math.PI / 180;
+            var theta = (180 - d.lng) * Math.PI / 180;
 
-            pointObj.position.x = 100 * Math.sin(phi) * Math.cos(theta);
-            pointObj.position.y = 100 * Math.cos(phi);
-            pointObj.position.z = 100 * Math.sin(phi) * Math.sin(theta);
+            pointObj.position.x = globeRadius * Math.sin(phi) * Math.cos(theta);
+            pointObj.position.y = globeRadius * Math.cos(phi);
+            pointObj.position.z = globeRadius * Math.sin(phi) * Math.sin(theta);
             pointObj.lookAt(globe.position);
 
             pivot.add(pointObj);
 
-        }
+            geos.push({obj: pointObj, height: d.count});
 
-        
-        /*
+            ////LABEL////
+            var label = document.createElement("div");
+            label.className = "label";
+            label.innerHTML = d.city;
 
-        //////LABELS//////
-        var text2 = document.createElement('div');
-        text2.style.position = 'absolute';
-        text2.style.width = 100;
-        text2.style.height = 100;
-        text2.style.backgroundColor = "blue";
-        text2.innerHTML = "The Moon";
-        document.getElementById("container").appendChild(text2);
-        */
+            if (d.count < 3 || typeof d.city === "undefined") {
+                label.style.display = "none";
+            }
+
+            container.appendChild(label);
+
+            labels.push(label);
+
+            var labelPos = new THREE.Object3D();
+            labelPos.position.x = (globeRadius + d.count) * Math.sin(phi) * Math.cos(theta);
+            labelPos.position.y = (globeRadius + d.count) * Math.cos(phi);
+            labelPos.position.z = (globeRadius + d.count) * Math.sin(phi) * Math.sin(theta);
+
+            pivot.add(labelPos);
+            labelPositions.push(labelPos);
+
+            ////TWEEN////
+            var scale = {z : 1};
+            var target = {z: d.count}
+            new TWEEN.Tween(scale).to(target, 1000).onUpdate( function () {
+                
+                pointObj.scale.z = scale.z;
+
+            }).start();
+
+        });
+
 
         //////RENDER//////
 
-        var render = function () {
-            //requestAnimationFrame( render );
+        camera.lookAt(pivot.children[0].position);
 
+        var render = function () {
+                
+            requestAnimationFrame( render );
+          
             //parent.rotation.y += 0.01;
 
-            camera.lookAt(pivot.children[1].position);
 
             renderer.render(scene, camera);
+            TWEEN.update();
 
-            /*
-            var proj = toScreenPosition(cube2, camera);
-
-            text2.style.left = proj.x + 'px';
-            text2.style.top = proj.y + 'px';
-            text2.style.zIndex = proj.z > 0 ? 3 : 0;
-            */
+            renderLabels();
         };
 
         render();
 
-
         //////HELPERS//////
+
+
+        function renderLabels() {
+
+            for (var i=0; i < labelPositions.length - 1; i++) {
+
+                var proj = toScreenPosition(labelPositions[i], camera);
+               
+                labels[i].style.left = proj.x + 'px';
+                labels[i].style.top = proj.y + 'px';
+                labels[i].style.zIndex = proj.z > 0 ? 3 : 0;
+            }
+        }
 
         function toScreenPosition(obj, camera)
         {
             var vector = new THREE.Vector3();
-            var vector1 = new THREE.Vector3();
+            var zIndex = new THREE.Vector3();
 
             var widthHalf = 0.5*renderer.context.canvas.width;
             var heightHalf = 0.5*renderer.context.canvas.height;
@@ -198,9 +241,9 @@ title: Where I've Been
             obj.updateMatrixWorld();
             vector.setFromMatrixPosition(obj.matrixWorld);
             vector.project(camera);
-
+             
             parent.updateMatrixWorld()
-            vector1.setFromMatrixPosition(obj.matrixWorld);
+            zIndex.setFromMatrixPosition(obj.matrixWorld);
 
             vector.x = ( vector.x * widthHalf ) + widthHalf;
             vector.y = - ( vector.y * heightHalf ) + (heightHalf);
@@ -208,7 +251,7 @@ title: Where I've Been
             return { 
                 x: vector.x,
                 y: vector.y,
-                z: vector1.z
+                z: zIndex.z
             };
 
         };

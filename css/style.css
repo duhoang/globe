@@ -208,6 +208,55 @@ html, body {
   position: fixed;
   bottom: 0; }
 
+.label {
+  position: absolute;
+  font-size: 11px;
+  animation: showLabel linear 2s 1;
+  -moz-animation: showLabel linear 2s 1;
+  -webkit-animation: showLabel linear 2s 1;
+  animation-delay: 0;
+  -moz-animation-delay: 0;
+  /* Firefox */
+  -webkit-animation-delay: 0;
+  /* Safari and Chrome */
+  -o-animation-delay: 0;
+  /* Opera */
+  animation-timing-function: ease;
+  -moz-animation-timing-function: ease;
+  /* Firefox */
+  -webkit-animation-timing-function: ease;
+  /* Safari and Chrome */
+  -o-animation-timing-function: ease;
+  /* Opera */ }
+
+@-webkit-keyframes showLabel {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+@-moz-keyframes showLabel {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+@-ms-keyframes showLabel {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+@keyframes showLabel {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
 @-webkit-keyframes loadingManager {
   0% {
     stroke-dashoffset: 125.6px; }

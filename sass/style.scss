@@ -273,7 +273,25 @@ html, body {
 	bottom: 0
 }
 
+.label {
+    position: absolute;
+    font-size: 11px;
 
+    @include css-animate(showLabel, 2s, 1, 0, ease);
+}
+
+
+@include keyframes(showLabel){
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
 
 
 $radius: 20px;
