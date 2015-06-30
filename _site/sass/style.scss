@@ -154,6 +154,11 @@ $p-brown: #AC6D4A;
 	transform: translate3d($x, $y, $z); 
 }
 
+@mixin linear-gradient($direction, $color-stops...) {
+  background: nth(nth($color-stops, 1), 1);
+  background: -webkit-linear-gradient(legacy-direction($direction), $color-stops);
+  background: linear-gradient($direction, $color-stops);
+}
 
 html, body {
 	width:100%;
@@ -170,6 +175,8 @@ html, body {
 	color: $white;
 	font-size: 16px;
 	margin: 0;
+
+    @include linear-gradient($blue, $blue, #108adf);
 }
 
 
@@ -182,7 +189,7 @@ html, body {
 	
 	h1 {
 		font-size:48px;
-		margin: 16px 0 8px;
+		margin: 16px 0 16px;
         line-height: 1;
 		transition: font-size .25s;
 	}
@@ -248,12 +255,10 @@ html, body {
 		border-radius: 50%;
 		cursor:pointer;
 		
-		box-shadow: 0 0 0 rgba($black, .3);
 		
 		&:hover {
 			transition: all .25s ease-out;
 			background: $white;
-			box-shadow: -4px 4px 0 rgba($black, .3);
 			.icon {
 				fill: $blue-dark;
 			}
@@ -270,6 +275,48 @@ html, body {
 }
 
 
+.foursquare-connect {
+    margin: 16px 0 36px 0;
+    text-align:center;
+    img {
+        height: 100%;
+        vertical-align: -16px;
+    }
+    
+    a {
+        color: $blue;
+        height: 44px;
+        line-height: 44px;
+        border-radius: 4px;
+        overflow:hidden;
+        text-decoration: none;
+        display: inline-block;
+        background: $white;
+        box-shadow: -3px 3px 0 rgba($black, .3);
+        transition: scale .25s;
+        cursor:pointer;
+        
+        &:active {
+            background: $gray2;
+            color: $gray4;
+            box-shadow: none;
+            box-shadow: -1px 1px 0 rgba($black, .3);
+            transform: scale(.9);
+            
+            img {
+                opacity: .4;
+                
+            }
+        }   
+    }
+    span {
+        margin: 0 20px 0 4px;
+    }
+    
+    .show-user & {
+        display: none;
+    }
+}
 
 
 .content {

@@ -13,7 +13,138 @@ title: Where I've Been
     <script src="js/Tween.js" charset="utf-8"></script>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link type="text/css" href="css/style.css" rel="stylesheet"/>
+<script>
 
+    var url = window.location;
+    var a = $('<a>', { href:url } )[0];
+    var token = a.hash.split('=')[1];
+
+    //var data = {% include data %};
+    var data;
+    var data_offset = 0;
+    var data_date = "01-01-2014";
+    var data_date_end = "01-01-2015";
+    var restos = [];
+    var lineData = [];
+    
+    if (token) {
+
+        initData();
+        
+        $.get("https://api.foursquare.com/v2/users/self/?oauth_token="+token+"&v=20140806", function(user){
+            if (user.meta.code === 200) {
+                $(".user img").attr("src", user.response.user.photo.prefix+"original"+ user.response.user.photo.suffix);
+            
+            }
+        });
+    }
+
+    function initData() {
+
+        var date = getTimestamp(data_date);
+        var end = getTimestamp(data_date_end);
+        fetchData(date, end, data_offset);
+    }
+
+    function newYearData() {
+
+        data = null;
+        data_date = "01-01-"+$(".date-curr").text();
+        data_date_end = "01-01-"+ (parseInt($(".date-curr").text()) + 1);
+        data_offset = 0;
+        restos = [];
+        lineData = [];
+
+        $("#showCat").removeClass("show");
+        $("#cuisine-label").addClass("show");
+        $(".linegraph-inner").html("");
+
+        var date = getTimestamp(data_date);
+        var end = getTimestamp(data_date_end);
+        fetchData(date, end, data_offset);
+
+
+    }
+
+
+    function fetchData(timestamp, before, offset) {
+        
+        $.get("https://api.foursquare.com/v2/users/self/checkins?oauth_token="+token+"&v=20140806&m=foursquare&beforeTimestamp="+before+"&afterTimestamp="+timestamp+"&limit=250&offset="+offset, function(d){
+            
+            if (d.meta.code === 200) {
+                mergeData(d);
+            }
+        });
+    }
+
+    function mergeData(newdata) {
+
+        if (data) {
+            data.response.checkins.items = data.response.checkins.items.concat(newdata.response.checkins.items);
+        } else {
+            data = newdata;
+        }
+        if (newdata.response.checkins.items.length < 250) {
+            initApp();
+        } else {
+            data_offset += 250;
+            fetchData(getTimestamp(data_date), getTimestamp(data_date_end), data_offset);
+        }
+        
+    } 
+
+    function getTimestamp(date) {
+        
+        var myDate = date; //"26-02-2012"
+        
+        myDate=myDate.split("-");
+        
+        var newDate=myDate[1]+"/"+myDate[0]+"/"+myDate[2];
+        
+        return (new Date(newDate).getTime()/1000);
+    }
+
+    $(function(){
+        //initApp(); //move this into if loop
+
+
+        $("#showCat").click(function(){
+            $(this).removeClass("show");
+            $("#cuisine-label").addClass("show");
+            pieView("cat");
+        });
+
+        if (token) {
+            $(".foursquare-btn").hide();
+            $(".loading").show();
+        }
+
+        $(".date-prev").on("click", function(){
+            
+            $(".date-curr").text(parseInt($(".date-curr").text()) - 1);
+
+            newYearData();
+        });
+
+        $(".date-next").on("click", function(){
+            
+            $(".date-curr").text(parseInt($(".date-curr").text()) + 1);
+            newYearData();
+        });
+
+        
+    });
+    
+    function initApp() {
+
+        $("body").addClass("show-user");
+
+
+        
+    }
+
+    
+</script>
 </head>
 <body>
     <svg style="display:none;">
@@ -38,7 +169,27 @@ title: Where I've Been
     </svg>
 
     <div class="header">
+        <div class="foursquare-connect">
+            <!--  -->
+            <div class="foursquare-btn">
+            <a href="https://foursquare.com/oauth2/authenticate?client_id=3WJ1E4CGYGPE0PDTABBAIOBRP02Z3TOCM2MVUVFSN5FKY4JE&response_type=token&redirect_uri=http://duhoang.github.io/whereiate/">
+                    <img src="img/foursquare-icon.png" />
+                    <span>Connect to <strong>Foursquare</strong></span>
+                </a>
+            </div>
 
+            <div class="loading">
+                <svg class="loader">
+                    
+                    <circle cx="22" cy="22" r="20">
+
+                    </circle>
+                </svg>
+            </div>
+        </div>
+        <div class="user">
+            <img src="img/blank_boy.png"/>
+        </div>
         <h1>Where I've Been</h1>
 
         <div class="date">
