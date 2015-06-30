@@ -377,7 +377,7 @@ html, body {
 
 .list-wrapper {
   position: absolute;
-  top: 240px;
+  top: 280px;
   width: 320px;
   left: 16px;
   z-index: 5;
