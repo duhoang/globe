@@ -254,6 +254,8 @@ title: Where I've Been
         var renderer = new THREE.WebGLRenderer({alpha: true});
         var container = document.getElementById("container");
 
+        $(".container").html("");
+
         renderer.setSize( window.innerWidth, window.innerHeight);
 
         container.appendChild(renderer.domElement);
@@ -301,22 +303,7 @@ title: Where I've Been
         var geos = [];
         var tweens = []
 
-        var point = new THREE.BoxGeometry(2, 2, 1);
-        point.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, -.5 ) );
-
-        var pointMat = new THREE.MeshPhongMaterial({color: 0xff0000});
-        var pointObj = new THREE.Mesh(point, pointMat);
-        pointObj.scale.z = 10 //d.count;
-
-
-        pointObj.position.x = 100;
-        pointObj.position.y = 0;
-        pointObj.position.z = 0;
-        pointObj.lookAt(globe.position);
-
-            console.log(pointObj.position);
-        //pivot.add(pointObj);
-
+    
 
         _.map(sortedData, function(d){
 
@@ -344,7 +331,7 @@ title: Where I've Been
             label.className = "label";
             label.innerHTML = d.city;
 
-            if (d.count < 3 || typeof d.city === "undefined") {
+            if (d.count < 1 || typeof d.city === "undefined") {
                 label.style.display = "none";
             }
 
@@ -380,7 +367,7 @@ title: Where I've Been
         //camera.lookAt(pivot.children[pivot.children.length - 1].position);
 
         parent.rotation.y = (180 - sortedData[0].lng) * (Math.PI/180) - 4.6;
-        parent.rotation.x = (90 - sortedData[0].lat) * (Math.PI/180) - 0.8600609162949419;
+        parent.rotation.x =  -(90 - sortedData[0].lat) * (Math.PI/180) + 0.859761281510897;
 
         var render = function () {
           
@@ -393,7 +380,7 @@ title: Where I've Been
             TWEEN.update();
             renderLabels();
             renderer.render(scene, camera);
-            
+            console.log("rendering");
         };
 
         
@@ -502,6 +489,11 @@ title: Where I've Been
             event.preventDefault();
 
             if ( isMouseDown ) {
+                
+                if (rotateTween) {
+
+                    rotateTween.stop();
+                }
 
                 theta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.5 ) + onMouseDownTheta;
                 phi = ( ( event.clientY - onMouseDownPosition.y ) * 0.5 ) + onMouseDownPhi;
@@ -510,10 +502,12 @@ title: Where I've Been
 
                 parent.rotation.y = -theta/100;
                 parent.rotation.x = phi/100;
+                render();
             }
 
             
-            render();
+            
+            
 
         }
 
@@ -524,16 +518,19 @@ title: Where I've Been
 
 
         var targetY = (180 - pos.lng) * (Math.PI/180) - 4.6;
-        var targetX = (90 - pos.lat) * (Math.PI/180) - 0.8600609162949419;
+        var targetX = -(90 - pos.lat) * (Math.PI/180) + 0.859761281510897;
+
 
         var origin = {x: parent.rotation.x, y: parent.rotation.y};
         var target = {x: targetX, y: targetY};
 
 
-        if (rotateTween) {
+                                
+                                if (rotateTween) {
 
             rotateTween.stop();
         }
+
 
         rotateTween = new TWEEN.Tween(origin).to(target, 1000).onUpdate( function () {
             parent.rotation.x = origin.x;

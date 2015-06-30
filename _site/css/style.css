@@ -247,6 +247,7 @@ html, body {
 .label {
   position: absolute;
   font-size: 11px;
+  margin-top: -20px;
   animation: showLabel linear 2s 1;
   -moz-animation: showLabel linear 2s 1;
   -webkit-animation: showLabel linear 2s 1;

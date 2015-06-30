@@ -327,6 +327,7 @@ html, body {
 .label {
     position: absolute;
     font-size: 11px;
+    margin-top: -20px;
 
     @include css-animate(showLabel, 2s, 1, 0, ease);
 }
