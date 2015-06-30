@@ -116,6 +116,7 @@ html, body {
   .header h1 {
     font-size: 48px;
     margin: 16px 0 8px;
+    line-height: 1;
     transition: font-size .25s; }
   @media all and (min-width: 768px) {
     .header h1 {
@@ -208,7 +209,8 @@ html, body {
   display: block; }
 
 .content {
-  position: fixed; }
+  position: fixed;
+  bottom: 0; }
 
 .label {
   position: absolute;
@@ -342,7 +344,7 @@ html, body {
 
 .list-wrapper {
   position: absolute;
-  top: 160px;
+  top: 240px;
   width: 320px;
   left: 16px;
   z-index: 5;

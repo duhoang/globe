@@ -229,6 +229,10 @@ title: Where I've Been
         //////RENDER//////
 
         //camera.lookAt(pivot.children[pivot.children.length - 1].position);
+
+        parent.rotation.y = (180 - sortedData[0].lng) * (Math.PI/180) - 4.6;
+        parent.rotation.x = (90 - sortedData[0].lat) * (Math.PI/180) - 0.8600609162949419;
+
         var render = function () {
           
             //parent.rotation.y += 0.01;
