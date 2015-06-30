@@ -7,6 +7,7 @@
     <script type="text/javascript" src="js/three.min.js"></script>
     <script src="js/underscore-min.js" charset="utf-8"></script>
     <script src="js/Tween.js" charset="utf-8"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link type="text/css" href="css/style.css" rel="stylesheet"/>
 
 </head>
@@ -32,7 +33,7 @@
         </defs>
     </svg>
 
-    <div class="header">
+    <div class="header" style="display:none;">
 
         <h1>Where I've Been</h1>
 
@@ -56,6 +57,10 @@
             </div>
         </div>
 
+    </div>
+
+    <div id="list" class="list-wrapper">
+        
     </div>
 
         
@@ -86,23 +91,27 @@
         sortedData = _.sortBy(sortedData, 'count').reverse();
 
 
-        //////3D SCENE//////
+        //////3D SCENE/////
+
+        var rotateOffset = Math.PI;
 
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(20, window.innerWidth/640, 0.1, 2000 );
+        var aspect = window.innerWidth/window.innerHeight;
+        var camera = new THREE.PerspectiveCamera(20, aspect, 0.1, 2000 );
         var renderer = new THREE.WebGLRenderer({alpha: true});
         var container = document.getElementById("container");
 
-        renderer.setSize( window.innerWidth, 640);
+        renderer.setSize( window.innerWidth, window.innerHeight);
 
         container.appendChild(renderer.domElement);
 
         renderer.domElement.style.zIndex = 2;
         renderer.domElement.style.position = "relative";
 
-        camera.position.x = 120;
+        camera.position.x = 0;
         camera.position.y = 100;
-        camera.position.z = 400;
+        camera.position.z = 500;
+
 
         var light = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
 
@@ -118,7 +127,7 @@
         var parent = new THREE.Object3D();
         var pivot = new THREE.Object3D();
         
-        pivot.rotation.y = 84.8;
+        pivot.rotation.y = rotateOffset;
 
         var globeRadius = 100;
 
@@ -137,6 +146,23 @@
         var labels = [];
         var labelPositions = [];
         var geos = [];
+        var tweens = []
+
+        var point = new THREE.BoxGeometry(2, 2, 1);
+        point.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, -.5 ) );
+
+        var pointMat = new THREE.MeshPhongMaterial({color: 0xff0000});
+        var pointObj = new THREE.Mesh(point, pointMat);
+        pointObj.scale.z = 10 //d.count;
+
+
+        pointObj.position.x = 100;
+        pointObj.position.y = 0;
+        pointObj.position.z = 0;
+        pointObj.lookAt(globe.position);
+
+            console.log(pointObj.position);
+        //pivot.add(pointObj);
 
 
         _.map(sortedData, function(d){
@@ -146,7 +172,7 @@
 
             var pointMat = new THREE.MeshPhongMaterial({color: 0xffff00});
             var pointObj = new THREE.Mesh(point, pointMat);
-            pointObj.scale.z = d.count;
+            pointObj.scale.z = 0 //d.count;
 
             var phi = (90 - d.lat) * Math.PI / 180;
             var theta = (180 - d.lng) * Math.PI / 180;
@@ -184,34 +210,46 @@
             ////TWEEN////
             var scale = {z : 1};
             var target = {z: d.count}
-            new TWEEN.Tween(scale).to(target, 1000).onUpdate( function () {
-                
+
+            var tween = new TWEEN.Tween(scale).to(target, d.count * (1000 / d.count)).onUpdate( function () {
+    
                 pointObj.scale.z = scale.z;
 
-            }).start();
+            });
+
+            tweens.push(tween);
 
         });
 
 
         //////RENDER//////
 
-        camera.lookAt(pivot.children[0].position);
-
+        //camera.lookAt(pivot.children[pivot.children.length - 1].position);
         var render = function () {
-                
-            requestAnimationFrame( render );
           
             //parent.rotation.y += 0.01;
 
-
-            renderer.render(scene, camera);
+            if (TWEEN.getAll().length > 0) {
+                requestAnimationFrame( render );
+                
+            }
             TWEEN.update();
-
             renderLabels();
+            renderer.render(scene, camera);
+            
         };
 
+        
+
+        tweens.forEach(function(twn) {
+            twn.start();
+        });
+
+    
+       
         render();
 
+//animate();
         //////HELPERS//////
 
 
@@ -252,6 +290,146 @@
             };
 
         };
+
+
+        /*****MOUSE*****/
+
+        window.addEventListener( 'resize', onWindowResize, false );
+
+        function onWindowResize(){
+
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+
+        }
+
+        var  mouse3D, isMouseDown = false, onMouseDownPosition,
+            radious = 1600, theta = 0, onMouseDownTheta = 0, phi = 0, onMouseDownPhi = 0,
+            isShiftDown = false;
+
+        onMouseDownPosition = new THREE.Vector2();
+
+        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+        function onDocumentMouseDown( event ) {
+
+            event.preventDefault();
+
+            isMouseDown = true;
+
+            onMouseDownTheta = theta;
+            onMouseDownPhi = phi;
+            onMouseDownPosition.x = event.clientX;
+            onMouseDownPosition.y = event.clientY;
+
+        }
+
+        function onDocumentMouseUp( event ) {
+
+                event.preventDefault();
+
+                isMouseDown = false;
+
+                onMouseDownPosition.x = event.clientX - onMouseDownPosition.x;
+                onMouseDownPosition.y = event.clientY - onMouseDownPosition.y;
+
+            }
+
+
+        function onDocumentMouseMove( event ) {
+
+            event.preventDefault();
+
+            if ( isMouseDown ) {
+
+                theta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.5 ) + onMouseDownTheta;
+                phi = ( ( event.clientY - onMouseDownPosition.y ) * 0.5 ) + onMouseDownPhi;
+
+                //phi = Math.min( 180, Math.max( 0, phi ) );
+
+                parent.rotation.y = -theta/100;
+                parent.rotation.x = phi/100;
+            }
+
+            
+            render();
+
+        }
+
+
+    var currPos = {lat:0, lng:0};
+
+    function goToCity(index) {
+
+        var pos = sortedData[index];
+
+
+        parent.rotation.y = (180 - pos.lng) * (Math.PI/180) - 4.6;
+
+        parent.rotation.x = (90 - pos.lat) * (Math.PI/180) - 0.8600609162949419;
+
+        console.log(parent.rotation.x + ":"+pos.lng);
+
+        render();
+    }
+
+/*
+
+-1.2912255058305686:0.7107354104999548
+
+
+    function bearingDegrees (lat1, long1, lat2, long2)
+
+{
+
+    var degToRad= Math.PI/180.0;
+
+ 
+
+    var phi1= lat1 * degToRad;
+
+    var phi2= lat2 * degToRad;
+
+    var lam1= long1 * degToRad;
+
+    var lam2= long2 * degToRad;
+
+ 
+
+    return Math.atan2(Math.sin(lam2-lam1) * Math.cos(phi2),
+
+        Math.cos(phi1)*Math.sin(phi2) - Math.sin(phi1)*Math.cos(phi2)*Math.cos(lam2-lam1)
+
+    ) * 180/Math.PI;
+
+}
+
+*/
+
+
+    /////LIST/////
+
+    $(function(){
+
+
+        $(".list-wrapper").html("").append("<ul></ul>");
+
+        _.each(sortedData, function(d, i){
+
+            $(".list-wrapper ul").append("<li data-index='"+i+"'>"+d.city+" "+d.count+"</li>");
+        });
+
+        $(".list-wrapper li").on("click", function(){
+
+           goToCity(parseInt($(this).attr("data-index")));
+        });
+    });
+
+    
 
     </script>
 </body>
