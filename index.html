@@ -13,6 +13,82 @@ title: Where I've Been
     <script src="js/Tween.js" charset="utf-8"></script>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link type="text/css" href="css/style.css" rel="stylesheet"/>
+
+</head>
+<body>
+    <svg style="display:none;">
+        <defs>
+            <g id="icon-arr-right">
+                <path class="path1" d="M11.447 10.343l5.657 5.657-5.657 5.657 1.886 1.885 7.542-7.542-7.542-7.542z" />
+            </g>
+            <g id="icon-arr-left">
+                <path class="path1" d="M20.875 10.343l-5.657 5.657 5.657 5.657-1.885 1.885-7.542-7.542 7.542-7.542z" />
+            </g>
+            <g id="icon-linkedin">
+                <path class="path1" d="M27.359 2.667h-22.723c-1.087 0-1.969 0.861-1.969 1.921v22.821c0 1.063 0.882 1.925 1.969 1.925h22.723c1.087 0 1.975-0.862 1.975-1.925v-22.821c0-1.060-0.887-1.921-1.975-1.921zM10.667 25.333h-4v-12.667h4v12.667zM8.597 10.925c-1.268 0-2.293-1.028-2.293-2.294 0-1.265 1.025-2.292 2.293-2.292 1.264 0 2.292 1.028 2.292 2.292 0 1.267-1.028 2.294-2.292 2.294zM25.333 25.333h-4v-6.131c0-1.476 0.185-3.375-1.841-3.375-2.059 0-2.159 1.607-2.159 3.267v6.239h-4v-12.667h3.333v2h0.237c0.528-1.333 1.791-2.187 3.715-2.187 4.003 0 4.713 2.503 4.713 5.931v6.923z" />
+            </g>
+            <g id="icon-twitter">
+                <path class="path1" d="M29.333 7.729c-0.981 0.435-2.036 0.729-3.143 0.861 1.129-0.677 1.998-1.749 2.405-3.027-1.057 0.627-2.227 1.083-3.474 1.328-0.997-1.063-2.42-1.727-3.993-1.727-3.021 0-5.471 2.449-5.471 5.471 0 0.429 0.048 0.847 0.141 1.247-4.546-0.229-8.578-2.407-11.276-5.717-0.471 0.808-0.741 1.748-0.741 2.751 0 1.899 0.966 3.573 2.434 4.553-0.897-0.028-1.741-0.275-2.478-0.684-0.001 0.023-0.001 0.045-0.001 0.069 0 2.651 1.886 4.862 4.389 5.365-0.459 0.125-0.943 0.191-1.441 0.191-0.353 0-0.695-0.034-1.029-0.097 0.697 2.173 2.717 3.755 5.111 3.799-1.873 1.467-4.232 2.343-6.795 2.343-0.442 0-0.877-0.026-1.305-0.077 2.421 1.552 5.297 2.459 8.387 2.459 10.063 0 15.567-8.337 15.567-15.567 0-0.237-0.006-0.473-0.016-0.708 1.068-0.772 1.995-1.735 2.729-2.833z" />
+            </g>
+            <g id="icon-mail">
+                <path class="path1" d="M16.002 18.131l-13.335-8.705v13.241c0 1.473 1.194 2.667 2.667 2.667h21.333c1.473 0 2.667-1.194 2.667-2.667v-13.331l-13.331 8.795z" />
+                <path class="path2" d="M15.998 16.536l12.959-8.549c-0.464-0.786-1.311-1.32-2.29-1.32h-21.333c-1.007 0-1.873 0.565-2.327 1.389l12.991 8.481z" />
+            </g>
+        </defs>
+    </svg>
+
+    <div class="header">
+        <div class="foursquare-connect">
+            <!--  -->
+            <div class="foursquare-btn">
+            <a href="https://foursquare.com/oauth2/authenticate?client_id=JQVJMAYNDQZCJQ2TN2XPW4CA4VAAWYHBZRYAW4LNWYJYOGQQ&response_type=token&redirect_uri=http://duhoang.com/globe/">
+                    <img src="img/foursquare-icon.png" />
+                    <span>Connect to <strong>Foursquare</strong></span>
+                </a>
+            </div>
+
+            <div class="loading">
+                <svg class="loader">
+                    
+                    <circle cx="22" cy="22" r="20">
+
+                    </circle>
+                </svg>
+            </div>
+        </div>
+        <div class="user">
+            <img src="img/blank_boy.png"/>
+        </div>
+        <h1>Where I've Been</h1>
+
+        <div class="date">
+            <div class="date-prev">
+                <span class="icon">
+                    <svg viewBox="5 4  24 24">
+                        <use xlink:href="#icon-arr-left"></use>
+                    </svg>
+                </span>
+            </div>
+
+            <div class="date-curr"> 2014</div>
+            
+            <div class="date-next">
+                <span class="icon">
+                    <svg viewBox="3 4  24 24">
+                        <use xlink:href="#icon-arr-right"></use>
+                    </svg>
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="list" class="list-wrapper">
+        
+    </div>
+
+        
+    <div id="container" class="content"></div>
 <script>
 
     var url = window.location;
@@ -37,6 +113,10 @@ title: Where I've Been
             
             }
         });
+    } else {
+
+        data = {% include data %};
+        runApp();
     }
 
     function initData() {
@@ -139,95 +219,13 @@ title: Where I've Been
 
         $("body").addClass("show-user");
 
-
+        runApp();
         
     }
 
-    
-</script>
-</head>
-<body>
-    <svg style="display:none;">
-        <defs>
-            <g id="icon-arr-right">
-                <path class="path1" d="M11.447 10.343l5.657 5.657-5.657 5.657 1.886 1.885 7.542-7.542-7.542-7.542z" />
-            </g>
-            <g id="icon-arr-left">
-                <path class="path1" d="M20.875 10.343l-5.657 5.657 5.657 5.657-1.885 1.885-7.542-7.542 7.542-7.542z" />
-            </g>
-            <g id="icon-linkedin">
-                <path class="path1" d="M27.359 2.667h-22.723c-1.087 0-1.969 0.861-1.969 1.921v22.821c0 1.063 0.882 1.925 1.969 1.925h22.723c1.087 0 1.975-0.862 1.975-1.925v-22.821c0-1.060-0.887-1.921-1.975-1.921zM10.667 25.333h-4v-12.667h4v12.667zM8.597 10.925c-1.268 0-2.293-1.028-2.293-2.294 0-1.265 1.025-2.292 2.293-2.292 1.264 0 2.292 1.028 2.292 2.292 0 1.267-1.028 2.294-2.292 2.294zM25.333 25.333h-4v-6.131c0-1.476 0.185-3.375-1.841-3.375-2.059 0-2.159 1.607-2.159 3.267v6.239h-4v-12.667h3.333v2h0.237c0.528-1.333 1.791-2.187 3.715-2.187 4.003 0 4.713 2.503 4.713 5.931v6.923z" />
-            </g>
-            <g id="icon-twitter">
-                <path class="path1" d="M29.333 7.729c-0.981 0.435-2.036 0.729-3.143 0.861 1.129-0.677 1.998-1.749 2.405-3.027-1.057 0.627-2.227 1.083-3.474 1.328-0.997-1.063-2.42-1.727-3.993-1.727-3.021 0-5.471 2.449-5.471 5.471 0 0.429 0.048 0.847 0.141 1.247-4.546-0.229-8.578-2.407-11.276-5.717-0.471 0.808-0.741 1.748-0.741 2.751 0 1.899 0.966 3.573 2.434 4.553-0.897-0.028-1.741-0.275-2.478-0.684-0.001 0.023-0.001 0.045-0.001 0.069 0 2.651 1.886 4.862 4.389 5.365-0.459 0.125-0.943 0.191-1.441 0.191-0.353 0-0.695-0.034-1.029-0.097 0.697 2.173 2.717 3.755 5.111 3.799-1.873 1.467-4.232 2.343-6.795 2.343-0.442 0-0.877-0.026-1.305-0.077 2.421 1.552 5.297 2.459 8.387 2.459 10.063 0 15.567-8.337 15.567-15.567 0-0.237-0.006-0.473-0.016-0.708 1.068-0.772 1.995-1.735 2.729-2.833z" />
-            </g>
-            <g id="icon-mail">
-                <path class="path1" d="M16.002 18.131l-13.335-8.705v13.241c0 1.473 1.194 2.667 2.667 2.667h21.333c1.473 0 2.667-1.194 2.667-2.667v-13.331l-13.331 8.795z" />
-                <path class="path2" d="M15.998 16.536l12.959-8.549c-0.464-0.786-1.311-1.32-2.29-1.32h-21.333c-1.007 0-1.873 0.565-2.327 1.389l12.991 8.481z" />
-            </g>
-        </defs>
-    </svg>
-
-    <div class="header">
-        <div class="foursquare-connect">
-            <!--  -->
-            <div class="foursquare-btn">
-            <a href="https://foursquare.com/oauth2/authenticate?client_id=JQVJMAYNDQZCJQ2TN2XPW4CA4VAAWYHBZRYAW4LNWYJYOGQQ&response_type=token&redirect_uri=http://duhoang.com/globe/">
-                    <img src="img/foursquare-icon.png" />
-                    <span>Connect to <strong>Foursquare</strong></span>
-                </a>
-            </div>
-
-            <div class="loading">
-                <svg class="loader">
-                    
-                    <circle cx="22" cy="22" r="20">
-
-                    </circle>
-                </svg>
-            </div>
-        </div>
-        <div class="user">
-            <img src="img/blank_boy.png"/>
-        </div>
-        <h1>Where I've Been</h1>
-
-        <div class="date">
-            <div class="date-prev">
-                <span class="icon">
-                    <svg viewBox="5 4  24 24">
-                        <use xlink:href="#icon-arr-left"></use>
-                    </svg>
-                </span>
-            </div>
-
-            <div class="date-curr"> 2014</div>
-            
-            <div class="date-next">
-                <span class="icon">
-                    <svg viewBox="3 4  24 24">
-                        <use xlink:href="#icon-arr-right"></use>
-                    </svg>
-                </span>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="list" class="list-wrapper">
-        
-    </div>
+    function runApp() {
 
         
-    <div id="container" class="content"></div>
-
-
-
-
-    <script type="text/javascript">
-
-        //////DATA//////
-        var data = {% include data %};
 
         var sortedData = [] 
 
@@ -565,8 +563,9 @@ title: Where I've Been
         });
     });
 
-    
+}
 
-    </script>
+    
+</script>
 </body>
 </html>
