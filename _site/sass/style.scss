@@ -176,6 +176,9 @@ html, body {
 .header {
 	text-align:center;
 	padding: 32px 16px;
+    position: absolute;
+    z-index: 4;
+    width: 100%;
 	
 	h1 {
 		font-size:48px;
@@ -354,8 +357,27 @@ $circumference: $radius * 2 * $pi;
 }
 
 .list-wrapper {
-    position: fixed;
-    top:32px;
+    position: absolute;
+    top:160px;
+    width: 320px;   
     left: 16px;
-    z-index: 3;
+    z-index: 5;
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+
+    li {
+        padding: 4px 0;
+        cursor: pointer;
+
+        span {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 8px;
+            letter-spacing: 1px;
+        }
+
+        &.active {
+            color: red;
+        }
+    }
 }

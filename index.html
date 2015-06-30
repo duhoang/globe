@@ -6,6 +6,7 @@ title: Where I've Been
 <html>
 <head>
     <title>Where I've Been</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="js/three.min.js"></script>
     <script src="js/underscore-min.js" charset="utf-8"></script>
@@ -36,7 +37,7 @@ title: Where I've Been
         </defs>
     </svg>
 
-    <div class="header" style="display:none;">
+    <div class="header">
 
         <h1>Where I've Been</h1>
 
@@ -310,7 +311,7 @@ title: Where I've Been
 
         var  mouse3D, isMouseDown = false, onMouseDownPosition,
             radious = 1600, theta = 0, onMouseDownTheta = 0, phi = 0, onMouseDownPhi = 0,
-            isShiftDown = false;
+            isShiftDown = false, rotateTween;
 
         onMouseDownPosition = new THREE.Vector2();
 
@@ -364,70 +365,47 @@ title: Where I've Been
         }
 
 
-    var currPos = {lat:0, lng:0};
-
     function goToCity(index) {
 
         var pos = sortedData[index];
 
 
-        parent.rotation.y = (180 - pos.lng) * (Math.PI/180) - 4.6;
+        var targetY = (180 - pos.lng) * (Math.PI/180) - 4.6;
+        var targetX = (90 - pos.lat) * (Math.PI/180) - 0.8600609162949419;
 
-        parent.rotation.x = (90 - pos.lat) * (Math.PI/180) - 0.8600609162949419;
+        var origin = {x: parent.rotation.x, y: parent.rotation.y};
+        var target = {x: targetX, y: targetY};
 
-        console.log(parent.rotation.x + ":"+pos.lng);
+
+        if (rotateTween) {
+
+            rotateTween.stop();
+        }
+
+        rotateTween = new TWEEN.Tween(origin).to(target, 1000).onUpdate( function () {
+            parent.rotation.x = origin.x;
+            parent.rotation.y = origin.y;
+
+        }).start();
 
         render();
     }
-
-/*
-
--1.2912255058305686:0.7107354104999548
-
-
-    function bearingDegrees (lat1, long1, lat2, long2)
-
-{
-
-    var degToRad= Math.PI/180.0;
-
- 
-
-    var phi1= lat1 * degToRad;
-
-    var phi2= lat2 * degToRad;
-
-    var lam1= long1 * degToRad;
-
-    var lam2= long2 * degToRad;
-
- 
-
-    return Math.atan2(Math.sin(lam2-lam1) * Math.cos(phi2),
-
-        Math.cos(phi1)*Math.sin(phi2) - Math.sin(phi1)*Math.cos(phi2)*Math.cos(lam2-lam1)
-
-    ) * 180/Math.PI;
-
-}
-
-*/
-
 
     /////LIST/////
 
     $(function(){
 
 
-        $(".list-wrapper").html("").append("<ul></ul>");
+        $(".list-wrapper").html("").append("<ol></ol>");
 
         _.each(sortedData, function(d, i){
 
-            $(".list-wrapper ul").append("<li data-index='"+i+"'>"+d.city+" "+d.count+"</li>");
+            $(".list-wrapper ol").append("<li data-index='"+i+"' class='"+(i===0? "active":"")+"'><span>"+d.city+"</span> "+d.count+"</li>");
         });
 
         $(".list-wrapper li").on("click", function(){
 
+            $(this).addClass("active").siblings().removeClass("active");
            goToCity(parseInt($(this).attr("data-index")));
         });
     });
