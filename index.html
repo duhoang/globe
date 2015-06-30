@@ -281,8 +281,10 @@ title: Where I've Been
 
         var parent = new THREE.Object3D();
         var pivot = new THREE.Object3D();
+        var labelsGroup = new THREE.Object3D();
         
         pivot.rotation.y = rotateOffset;
+        labelsGroup.rotation.y = rotateOffset;
 
         var globeRadius = 100;
 
@@ -294,6 +296,7 @@ title: Where I've Been
         scene.add(parent);
         parent.add(globe);
         parent.add(pivot);
+        parent.add(labelsGroup);
 
 
         //////DATA OBJECTS//////
@@ -344,7 +347,7 @@ title: Where I've Been
             labelPos.position.y = (globeRadius + d.count) * Math.cos(phi);
             labelPos.position.z = (globeRadius + d.count) * Math.sin(phi) * Math.sin(theta);
 
-            pivot.add(labelPos);
+            labelsGroup.add(labelPos);
             labelPositions.push(labelPos);
 
             ////TWEEN////
@@ -366,8 +369,7 @@ title: Where I've Been
 
         //camera.lookAt(pivot.children[pivot.children.length - 1].position);
 
-        parent.rotation.y = (180 - sortedData[0].lng) * (Math.PI/180) - 4.6;
-        parent.rotation.x =  -(90 - sortedData[0].lat) * (Math.PI/180) + 0.859761281510897;
+        
 
         var render = function () {
           
@@ -389,9 +391,10 @@ title: Where I've Been
             twn.start();
         });
 
-    
+        var currCity = 0;
+
+        goToCity(currCity);
        
-        render();
 
 //animate();
         //////HELPERS//////
@@ -514,8 +517,9 @@ title: Where I've Been
 
     function goToCity(index) {
 
-        var pos = sortedData[index];
 
+
+        var pos = sortedData[index];
 
         var targetY = (180 - pos.lng) * (Math.PI/180) - 4.6;
         var targetX = -(90 - pos.lat) * (Math.PI/180) + 0.859761281510897;
@@ -524,9 +528,12 @@ title: Where I've Been
         var origin = {x: parent.rotation.x, y: parent.rotation.y};
         var target = {x: targetX, y: targetY};
 
+        pivot.children[currCity].material.color.setHex(0xffff00);
+        pivot.children[index].material.color.setHex(0xff0000);
 
+        currCity = index;
                                 
-                                if (rotateTween) {
+        if (rotateTween) {
 
             rotateTween.stop();
         }
