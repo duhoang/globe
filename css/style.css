@@ -246,8 +246,11 @@ html, body {
 
 .label {
   position: absolute;
-  font-size: 11px;
-  margin-top: -20px;
+  font-size: 12px;
+  white-space: nowrap;
+  text-shadow: 1px 1px #323232;
+  transform: translate(-50%, -100%);
+  line-height: 2;
   animation: showLabel linear 2s 1;
   -moz-animation: showLabel linear 2s 1;
   -webkit-animation: showLabel linear 2s 1;

@@ -14,6 +14,64 @@ title: Where I've Been
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link type="text/css" href="css/style.css" rel="stylesheet"/>
 
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+       // vertex shader
+
+varying vec3 vNormal;
+varying vec3 vWorldPosition;
+
+uniform float time;
+
+// chunk(shadowmap_pars_vertex);
+
+void main() {
+
+    // adding some displacement based on the vertex position
+    vec3 offset = vec3(
+        sin(position.x * 10.0 + time) * 15.0,
+        sin(position.y * 10.0 + time + 31.512) * 15.0,
+        sin(position.z * 10.0 + time + 112.512) * 15.0
+    );
+
+    vec3 pos = position + offset;
+
+    // just add some noise to the normal
+    vNormal = normalMatrix * vec3(normal + normalize(offset) * 0.2);
+
+    vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+    // chunk(shadowmap_vertex);
+
+    // store the world position as varying for lighting
+    vWorldPosition = worldPosition.xyz;
+
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+
+}
+    </script>
+  
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        // fragment shader
+
+varying vec3 vNormal;
+varying vec3 vWorldPosition;
+
+uniform vec3 lightPosition;
+
+
+void main(void) {
+
+    vec3 lightDirection = normalize(lightPosition - vWorldPosition);
+
+    vec3 outgoingLight = vec3(1.0);
+
+
+    // simpliest hardcoded lighting ^^
+    float c = 0.35 + max(0.0, dot(vNormal, lightDirection)) * 0.4;
+
+    gl_FragColor = vec4(c, c, c, 1.0);
+}
+    </script>
 </head>
 <body>
     <svg style="display:none;">
@@ -89,6 +147,8 @@ title: Where I've Been
 
         
     <div id="container" class="content"></div>
+
+
 <script>
 
     var url = window.location;
@@ -142,8 +202,6 @@ title: Where I've Been
         var date = getTimestamp(data_date);
         var end = getTimestamp(data_date_end);
         fetchData(date, end, data_offset);
-
-
     }
 
 
@@ -187,7 +245,6 @@ title: Where I've Been
     $(function(){
         //initApp(); //move this into if loop
 
-
         $("#showCat").click(function(){
             $(this).removeClass("show");
             $("#cuisine-label").addClass("show");
@@ -220,338 +277,14 @@ title: Where I've Been
         $("body").addClass("show-user");
 
         runApp();
-        
     }
 
-    function runApp() {
 
-        
+    {% include 3d-scene.js %};
 
-        var sortedData = [] 
-
-        _.each(data.response.checkins.items, function(d){
-            var loc = d.venue.location;
-            var prevLoc = _.find(sortedData, function(l){ return loc.city === l.city; })
-            if (prevLoc) {
-                prevLoc.count++;
-            }
-            else {
-                loc.count = 1;
-                sortedData.push(loc);
-            }
-        });
-
-        sortedData = _.sortBy(sortedData, 'count').reverse();
-
-
-        //////3D SCENE/////
-
-        var rotateOffset = Math.PI;
-
-        var scene = new THREE.Scene();
-        var aspect = window.innerWidth/window.innerHeight;
-        var camera = new THREE.PerspectiveCamera(20, aspect, 0.1, 2000 );
-        var renderer = new THREE.WebGLRenderer({alpha: true});
-        var container = document.getElementById("container");
-
-        $("#container").html("");
-
-        renderer.setSize( window.innerWidth, window.innerHeight);
-
-        container.appendChild(renderer.domElement);
-
-        renderer.domElement.style.zIndex = 2;
-        renderer.domElement.style.position = "relative";
-
-        camera.position.x = 0;
-        camera.position.y = 100;
-        camera.position.z = 500;
-
-
-        var light = new THREE.AmbientLight( 0x404040, 1 ); // soft white light
-
-        var directionalLight = new THREE.DirectionalLight( 0xffffff, .6 );
-        directionalLight.position.set( -1, 1, 1 );
-
-        scene.add(light);
-        scene.add( directionalLight );
-
-        
-        //////OBJECTS/////
-
-        var parent = new THREE.Object3D();
-        var pivot = new THREE.Object3D();
-        var labelsGroup = new THREE.Object3D();
-        
-        pivot.rotation.y = rotateOffset;
-        labelsGroup.rotation.y = rotateOffset;
-
-        var globeRadius = 100;
-
-        var geometry = new THREE.SphereGeometry( globeRadius, 64, 64);
-        var material = new THREE.MeshPhongMaterial({map : THREE.ImageUtils.loadTexture('img/earthmap1k.jpg')});
-
-        var globe = new THREE.Mesh( geometry, material );
-
-        scene.add(parent);
-        parent.add(globe);
-        parent.add(pivot);
-        parent.add(labelsGroup);
-
-
-        //////DATA OBJECTS//////
-
-        var labels = [];
-        var labelPositions = [];
-        var geos = [];
-        var tweens = []
-
-    
-
-        _.map(sortedData, function(d){
-
-            var point = new THREE.BoxGeometry(2, 2, 1);
-            point.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, -.5 ) );
-
-            var pointMat = new THREE.MeshPhongMaterial({color: 0xffff00});
-            var pointObj = new THREE.Mesh(point, pointMat);
-            pointObj.scale.z = 0 //d.count;
-
-            var phi = (90 - d.lat) * Math.PI / 180;
-            var theta = (180 - d.lng) * Math.PI / 180;
-
-            pointObj.position.x = globeRadius * Math.sin(phi) * Math.cos(theta);
-            pointObj.position.y = globeRadius * Math.cos(phi);
-            pointObj.position.z = globeRadius * Math.sin(phi) * Math.sin(theta);
-            pointObj.lookAt(globe.position);
-
-            pivot.add(pointObj);
-
-            geos.push({obj: pointObj, height: d.count});
-
-            ////LABEL////
-            var label = document.createElement("div");
-            label.className = "label";
-            label.innerHTML = d.city;
-
-            if (d.count < 1 || typeof d.city === "undefined") {
-                label.style.display = "none";
-            }
-
-            container.appendChild(label);
-
-            labels.push(label);
-
-            var labelPos = new THREE.Object3D();
-            labelPos.position.x = (globeRadius + d.count) * Math.sin(phi) * Math.cos(theta);
-            labelPos.position.y = (globeRadius + d.count) * Math.cos(phi);
-            labelPos.position.z = (globeRadius + d.count) * Math.sin(phi) * Math.sin(theta);
-
-            labelsGroup.add(labelPos);
-            labelPositions.push(labelPos);
-
-            ////TWEEN////
-            var scale = {z : 1};
-            var target = {z: d.count}
-
-            var tween = new TWEEN.Tween(scale).to(target, d.count * (1000 / d.count)).onUpdate( function () {
-    
-                pointObj.scale.z = scale.z;
-
-            });
-
-            tweens.push(tween);
-
-        });
-
-
-        //////RENDER//////
-
-        //camera.lookAt(pivot.children[pivot.children.length - 1].position);
-
-        
-
-        var render = function () {
-          
-            //parent.rotation.y += 0.01;
-
-            if (TWEEN.getAll().length > 0) {
-                requestAnimationFrame( render );
-                
-            }
-            TWEEN.update();
-            renderLabels();
-            renderer.render(scene, camera);
-            console.log("rendering");
-        };
-
-        
-
-        tweens.forEach(function(twn) {
-            twn.start();
-        });
-
-        var currCity = 0;
-
-        goToCity(currCity);
-       
-
-//animate();
-        //////HELPERS//////
-
-
-        function renderLabels() {
-
-            for (var i=0; i < labelPositions.length - 1; i++) {
-
-                var proj = toScreenPosition(labelPositions[i], camera);
-               
-                labels[i].style.left = proj.x + 'px';
-                labels[i].style.top = proj.y + 'px';
-                labels[i].style.zIndex = proj.z > 0 ? 3 : 0;
-            }
-        }
-
-        function toScreenPosition(obj, camera)
-        {
-            var vector = new THREE.Vector3();
-            var zIndex = new THREE.Vector3();
-
-            var widthHalf = 0.5*renderer.context.canvas.width;
-            var heightHalf = 0.5*renderer.context.canvas.height;
-
-            obj.updateMatrixWorld();
-            vector.setFromMatrixPosition(obj.matrixWorld);
-            vector.project(camera);
-             
-            parent.updateMatrixWorld()
-            zIndex.setFromMatrixPosition(obj.matrixWorld);
-
-            vector.x = ( vector.x * widthHalf ) + widthHalf;
-            vector.y = - ( vector.y * heightHalf ) + (heightHalf);
-
-            return { 
-                x: vector.x,
-                y: vector.y,
-                z: zIndex.z
-            };
-
-        };
-
-
-        /*****MOUSE*****/
-
-        window.addEventListener( 'resize', onWindowResize, false );
-
-        function onWindowResize(){
-
-            camera.aspect = window.innerWidth/window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            render();
-
-        }
-
-        var  mouse3D, isMouseDown = false, onMouseDownPosition,
-            radious = 1600, theta = 0, onMouseDownTheta = 0, phi = 0, onMouseDownPhi = 0,
-            isShiftDown = false, rotateTween;
-
-        onMouseDownPosition = new THREE.Vector2();
-
-        document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-        document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-
-        function onDocumentMouseDown( event ) {
-
-            event.preventDefault();
-
-            isMouseDown = true;
-
-            onMouseDownTheta = theta;
-            onMouseDownPhi = phi;
-            onMouseDownPosition.x = event.clientX;
-            onMouseDownPosition.y = event.clientY;
-
-        }
-
-        function onDocumentMouseUp( event ) {
-
-                event.preventDefault();
-
-                isMouseDown = false;
-
-                onMouseDownPosition.x = event.clientX - onMouseDownPosition.x;
-                onMouseDownPosition.y = event.clientY - onMouseDownPosition.y;
-
-            }
-
-
-        function onDocumentMouseMove( event ) {
-
-            event.preventDefault();
-
-            if ( isMouseDown ) {
-                
-                if (rotateTween) {
-
-                    rotateTween.stop();
-                }
-
-                theta = - ( ( event.clientX - onMouseDownPosition.x ) * 0.5 ) + onMouseDownTheta;
-                phi = ( ( event.clientY - onMouseDownPosition.y ) * 0.5 ) + onMouseDownPhi;
-
-                //phi = Math.min( 180, Math.max( 0, phi ) );
-
-                parent.rotation.y = -theta/100;
-                parent.rotation.x = phi/100;
-                render();
-            }
-
-            
-            
-            
-
-        }
-
-
-    function goToCity(index) {
-
-
-
-        var pos = sortedData[index];
-
-        var targetY = (180 - pos.lng) * (Math.PI/180) - 4.6;
-        var targetX = -(90 - pos.lat) * (Math.PI/180) + 0.859761281510897;
-
-
-        var origin = {x: parent.rotation.x, y: parent.rotation.y};
-        var target = {x: targetX, y: targetY};
-
-        pivot.children[currCity].material.color.setHex(0xffff00);
-        pivot.children[index].material.color.setHex(0xff0000);
-
-        currCity = index;
-                                
-        if (rotateTween) {
-
-            rotateTween.stop();
-        }
-
-
-        rotateTween = new TWEEN.Tween(origin).to(target, 1000).onUpdate( function () {
-            parent.rotation.x = origin.x;
-            parent.rotation.y = origin.y;
-
-        }).start();
-
-        render();
-    }
-
-    /////LIST/////
+    /////TOP LIST/////
 
     $(function(){
-
 
         $(".list-wrapper").html("").append("<ol></ol>");
 

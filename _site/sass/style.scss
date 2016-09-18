@@ -326,8 +326,11 @@ html, body {
 
 .label {
     position: absolute;
-    font-size: 11px;
-    margin-top: -20px;
+    font-size: 12px;
+    white-space: nowrap;
+    text-shadow: 1px 1px $gray8;
+    transform: translate(-50%, -100%);
+    line-height: 2;
 
     @include css-animate(showLabel, 2s, 1, 0, ease);
 }
