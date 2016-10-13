@@ -242,7 +242,10 @@ html, body {
 
 .content {
   position: fixed;
-  bottom: 0; }
+  bottom: 0;
+  background: #0b61a3;
+  background: -webkit-linear-gradient(legacy-direction(#0b61a3), #0b61a3, #108adf);
+  background: linear-gradient(#0b61a3, #0b61a3, #108adf); }
 
 .label {
   position: absolute;

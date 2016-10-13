@@ -322,6 +322,7 @@ html, body {
 .content {
     position: fixed;
     bottom: 0;
+    @include linear-gradient($blue, $blue, #108adf);
 }
 
 .label {
