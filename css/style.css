@@ -383,13 +383,16 @@ html, body {
 
 .list-wrapper {
   position: absolute;
-  top: 260px;
+  top: 320px;
   width: 320px;
   left: 16px;
   padding-bottom: 32px;
   z-index: 5;
   font-size: 12px;
   font-family: 'Roboto', sans-serif; }
+  @media all and (min-width: 768px) {
+    .list-wrapper {
+      top: 260px; } }
   .list-wrapper li {
     padding: 4px 0;
     cursor: pointer; }
