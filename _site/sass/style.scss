@@ -412,9 +412,10 @@ $circumference: $radius * 2 * $pi;
 
 .list-wrapper {
     position: absolute;
-    top:320px;
+    top:260px;
     width: 320px;   
     left: 16px;
+    padding-bottom: 32px;
     z-index: 5;
     font-size: 12px;
     font-family: 'Roboto', sans-serif;

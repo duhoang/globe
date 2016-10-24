@@ -302,12 +302,13 @@ function shaderParse(glsl) {
             else {
                 loc.count = 1;
                 loc.venues = [d.venue.name];
+
+
                 sortedData.push(loc);
             }
         });
 
-        sortedData = _.sortBy(sortedData, 'count').reverse();
-        console.log(sortedData)
+        sortedData = _.sortBy(sortedData, 'count').reverse().filter(function(d) { return typeof d.city !== "undefined" });
 
         //////3D SCENE/////
 
@@ -501,7 +502,7 @@ function shaderParse(glsl) {
 
     function renderLabels() {
 
-        for (var i=0; i < labelPositions.length - 1; i++) {
+        for (var i=0; i < labelPositions.length; i++) {
 
             var proj = toScreenPosition(labelPositions[i], camera);
            
@@ -551,8 +552,8 @@ function shaderParse(glsl) {
     }
 
     var  mouse3D, isMouseDown = false, onMouseDownPosition,
-        radious = 1600, theta = 0, onMouseDownTheta = 0, phi = 0, onMouseDownPhi = 0,
-        isShiftDown = false, rotateTween;
+        radious = 1600, theta = parent.rotation.y, onMouseDownTheta = 0, phi = parent.rotation.x, onMouseDownPhi = 0,
+        isShiftDown = false, rotateTween, baseX, baseY;
 
     onMouseDownPosition = new THREE.Vector2();
 
@@ -566,11 +567,12 @@ function shaderParse(glsl) {
 
         isMouseDown = true;
 
-        onMouseDownTheta = theta;
-        onMouseDownPhi = phi;
+        onMouseDownTheta = 0;
+        onMouseDownPhi = 0;
         onMouseDownPosition.x = event.clientX;
         onMouseDownPosition.y = event.clientY;
-
+        baseY = parent.rotation.y;
+        baseX = parent.rotation.x;
     }
 
     function onDocumentMouseUp( event ) {
@@ -601,8 +603,8 @@ function shaderParse(glsl) {
 
             //phi = Math.min( 180, Math.max( 0, phi ) );
 
-            parent.rotation.y = -theta/100;
-            parent.rotation.x = phi/100;
+            parent.rotation.y = -theta/100 + baseY;
+            parent.rotation.x = phi/100 + baseX;
             render();
         }
 
